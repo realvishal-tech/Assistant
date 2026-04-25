@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BCA Assistance - LND College</title>
+    <!-- Configure Tailwind for class-based dark mode -->
+    <script>
+        tailwind = {
+            config: {
+                darkMode: 'class',
+            }
+        }
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; overflow: hidden; }
+        
+        /* Minimal Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.1); border-radius: 10px; }
+        .dark ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(0, 0, 0, 0.2); }
+        .dark ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
+        
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Animations */
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in-up { animation: fadeInUp 0.3s ease forwards; }
+        
+        @keyframes typing { 0%, 80%, 100% { transform: scale(0); opacity: 0.3; } 40% { transform: scale(1); opacity: 1; } }
+        .typing-dot { animation: typing 1.4s infinite ease-in-out both; }
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        /* Minimalist Markdown Styles */
+        .md-content ul { list-style-type: disc; padding-left: 1.25rem; margin-top: 0.5rem; margin-bottom: 0.5rem; }
+        .md-content ol { list-style-type: decimal; padding-left: 1.25rem; margin-top: 0.5rem; margin-bottom: 0.5rem; }
+        .md-content li { margin-bottom: 0.25rem; }
+        
+        .md-content pre { background-color: #f9fafb; border: 1px solid #e5e7eb; color: #1f2937; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; font-size: 0.85rem; margin: 0.75rem 0; }
+        .dark .md-content pre { background-color: #000000; border: 1px solid #333333; color: #f3f4f6; }
+        
+        .md-content code { background-color: rgba(0,0,0,0.05); padding: 0.1rem 0.3rem; border-radius: 0.25rem; font-family: monospace; font-size: 0.85em; color: #be185d; }
+        .dark .md-content code { background-color: rgba(255,255,255,0.1); color: #f9a8d4; }
+        .md-content pre code { background-color: transparent; color: inherit; padding: 0; }
+        
+        .md-content p { margin-bottom: 0.75rem; line-height: 1.6; }
+        .md-content p:last-child { margin-bottom: 0; }
+        
+        .md-content strong { color: #111827; font-weight: 600; }
+        .dark .md-content strong { color: #f9fafb; }
+    </style>
+</head>
+<body class="flex items-center justify-center h-screen overflow-hidden bg-gray-50 dark:bg-[#171717] text-gray-800 dark:text-gray-100 transition-colors duration-200">
+
+    <!-- Chatbot Container -->
+    <div class="w-full max-w-3xl sm:rounded-2xl flex flex-col h-full sm:h-[95vh] overflow-hidden transition-all duration-200 relative z-10 mx-auto bg-white dark:bg-[#212121] sm:shadow-sm sm:border border-gray-200 dark:border-[#2f2f2f]">
+        
+        <!-- Minimal Header -->
+        <div class="bg-white dark:bg-[#212121] border-b border-gray-100 dark:border-[#2f2f2f] p-3 sm:p-4 flex justify-between items-center z-20 transition-colors duration-200">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-green-600 flex items-center justify-center text-white text-sm">
+                    🤖
+                </div>
+                <div>
+                    <h1 id="bot-name" class="font-semibold text-[15px] leading-tight text-gray-900 dark:text-gray-100">BCA Assistance</h1>
+                    <p id="bot-desc" class="text-[12px] text-gray-500 dark:text-gray-400">LND College</p>
+                </div>
+            </div>
+            <div class="flex gap-1">
+                <button onclick="toggleTheme()" class="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-[#2f2f2f] transition-colors" title="Toggle Theme">
+                    <span id="theme-icon" class="text-sm">☀️</span>
+                </button>
+                <button onclick="openSettings()" class="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-[#2f2f2f] transition-colors" title="Settings">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M10.34 15.84c-.688-.06-1.386-.09-2.09-.09H7.5a4.5 4.5 0 110-9h.75c.704 0 1.402-.03 2.09-.09m0 9.18c.253.962.584 1.892.985 2.783.247.55.06 1.21-.463 1.511l-.657.38c-.551.318-1.26.117-1.527-.461a20.845 20.845 0 01-1.44-4.282m3.102.069a18.03 18.03 0 01-.59-4.59c0-1.586.205-3.124.59-4.59m0 9.18a23.848 23.848 0 018.835 2.535M10.34 6.66a23.847 23.847 0 008.835-2.535m0 0A23.74 23.74 0 0018.795 3m.38 1.125a23.91 23.91 0 011.014 5.395m-1.014 8.855c-.118.38-.245.754-.38 1.125m.38-1.125a23.91 23.91 0 001.014-5.395m0-3.46c.495.413.811 1.035.811 1.73 0 .695-.316 1.317-.811 1.73m0-3.46a24.347 24.347 0 010 3.46" /></svg>
+                </button>
+                <button onclick="clearChat()" class="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-[#2f2f2f] transition-colors" title="New Chat">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" /></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Chat Area -->
+        <div id="chat-box" class="flex-1 p-4 sm:p-6 overflow-y-auto space-y-6 scroll-smooth z-10 relative bg-white dark:bg-[#212121]">
+            <!-- Initial Assistant Message -->
+            <div id="welcome-container" class="flex flex-col gap-4 animate-fade-in-up">
+                <div class="flex w-full gap-3">
+                    <div class="w-8 h-8 rounded-full bg-green-600 flex-shrink-0 flex items-center justify-center text-white text-sm">🤖</div>
+                    <div class="flex flex-col max-w-[85%] text-[15px] leading-relaxed text-gray-800 dark:text-gray-100 pt-1">
+                        <p>Hello! I am BCA Assistance, your AI study buddy.</p>
+                        <p class="mt-2">How can I help you study today? You can ask me to explain a concept, give you an example, or even test you with a quick quiz!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Typing Indicator -->
+        <div id="typing-indicator" class="hidden px-6 pb-4 bg-white dark:bg-[#212121] z-10 relative">
+            <div class="flex animate-fade-in-up gap-3">
+                <div class="w-8 h-8 rounded-full bg-green-600 flex-shrink-0 flex items-center justify-center text-white text-sm">🤖</div>
+                <div class="flex items-center gap-1 pt-3">
+                    <div class="w-1.5 h-1.5 bg-gray-400 dark:bg-gray-500 rounded-full typing-dot"></div>
+                    <div class="w-1.5 h-1.5 bg-gray-400 dark:bg-gray-500 rounded-full typing-dot"></div>
+                    <div class="w-1.5 h-1.5 bg-gray-400 dark:bg-gray-500 rounded-full typing-dot"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recommended Prompts (Dynamic) -->
+        <div id="recommendation-container" class="px-4 pb-2 bg-white dark:bg-[#212121] z-20 relative">
+            <div id="dynamic-prompts" class="flex gap-2 overflow-x-auto hide-scrollbar w-full pb-1">
+                <!-- Dynamically filled by JS -->
+            </div>
+        </div>
+
+        <!-- Image Preview Container -->
+        <div id="image-preview-container" class="hidden px-5 py-3 bg-gray-50 dark:bg-[#2f2f2f] border-t border-gray-100 dark:border-[#333] flex items-center gap-4 z-20 relative">
+            <div class="relative group cursor-pointer" onclick="removeImage()" title="Click to remove">
+                <img id="image-preview" class="h-12 w-12 object-cover rounded-lg border border-gray-200 dark:border-gray-600" src="" alt="Preview">
+                <div class="absolute inset-0 bg-red-500/80 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="white" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                </div>
+            </div>
+            <div class="flex flex-col">
+                <span class="text-xs font-medium text-gray-800 dark:text-gray-200">Image Attached</span>
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="px-4 pb-4 pt-2 bg-white dark:bg-[#212121] z-20 relative">
+            <input type="file" id="image-upload" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
+            
+            <div class="flex items-end gap-2 bg-gray-100 dark:bg-[#2f2f2f] border border-transparent focus-within:border-gray-300 dark:focus-within:border-gray-600 rounded-2xl p-2 transition-all w-full">
+                
+                <button onclick="document.getElementById('image-upload').click()" id="upload-btn" class="p-2 text-gray-500 hover:text-gray-800 dark:hover:text-gray-300 transition-colors flex-shrink-0 disabled:opacity-30 disabled:cursor-not-allowed mb-0.5" title="Attach Image">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13" /></svg>
+                </button>
+
+                <textarea id="user-input" rows="1"
+                    class="flex-1 bg-transparent px-1 py-2.5 text-[15px] outline-none placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-gray-100 resize-none max-h-32" 
+                    placeholder="How can I help you? ✨✍️"
+                    oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'"
+                    onkeydown="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); handleSendClick(); }"></textarea>
+                
+                <button onclick="toggleMic()" id="mic-btn" class="p-2 text-gray-500 hover:text-gray-800 dark:hover:text-gray-300 transition-colors flex-shrink-0 disabled:opacity-30 disabled:cursor-not-allowed mb-0.5" title="Voice Input">
+                    <svg id="mic-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" /></svg>
+                </button>
+
+                <button onclick="handleSendClick()" id="send-btn"
+                    class="p-2 rounded-xl bg-black dark:bg-white text-white dark:text-black hover:opacity-80 transition-opacity flex items-center justify-center shrink-0 disabled:bg-gray-300 dark:disabled:bg-gray-600 disabled:text-gray-500 dark:disabled:text-gray-400 disabled:cursor-not-allowed mb-0.5" title="Send Message">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 10.5L12 3m0 0l7.5 7.5M12 3v18" /></svg>
+                </button>
+            </div>
+            
+            <div class="text-center mt-2 flex justify-center gap-4">
+                <span class="text-[10px] text-gray-400">AI can make mistakes. Verify important info.</span>
+                <span class="text-[10px] text-gray-400">Dev: Vishal Kumar</span>
+            </div>
+        </div>
+
+        <!-- Error Message Container -->
+        <div id="error-msg" class="hidden bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 text-[13px] font-medium text-center py-2 px-4 mx-4 mb-2 rounded-lg border border-red-200 dark:border-red-800 z-30 relative transition-colors"></div>
+
+        <!-- Settings Modal (Click outside to close) -->
+        <div id="settings-modal" onclick="if(event.target === this) closeSettings()" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center px-4 opacity-0 transition-opacity duration-200">
+            <div class="bg-white dark:bg-[#212121] rounded-2xl shadow-xl w-full max-w-sm overflow-hidden transform scale-95 transition-all duration-200 border border-gray-200 dark:border-[#333]" id="settings-content">
+                <div class="border-b border-gray-100 dark:border-[#333] p-4 flex justify-between items-center">
+                    <span class="font-semibold text-gray-800 dark:text-gray-100 text-[15px]">Settings</span>
+                    <button onclick="closeSettings()" class="text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                </div>
+                <div class="p-5 space-y-4 text-sm">
+                    <div>
+                        <label class="block text-gray-600 dark:text-gray-400 font-medium mb-1.5 text-[13px]">Assistant Name</label>
+                        <input type="text" id="setting-name" value="BCA Assistance" class="w-full bg-gray-50 dark:bg-[#2f2f2f] border border-gray-200 dark:border-[#444] rounded-xl px-3 py-2 outline-none focus:border-gray-400 dark:focus:border-gray-500 transition-colors text-gray-900 dark:text-gray-100">
+                    </div>
+                    <div>
+                        <label class="block text-gray-600 dark:text-gray-400 font-medium mb-1.5 text-[13px]">Domain</label>
+                        <input type="text" id="setting-domain" value="BCA syllabus topics for LND College" class="w-full bg-gray-50 dark:bg-[#2f2f2f] border border-gray-200 dark:border-[#444] rounded-xl px-3 py-2 outline-none focus:border-gray-400 dark:focus:border-gray-500 transition-colors text-gray-900 dark:text-gray-100">
+                    </div>
+                    <div>
+                        <label class="block text-gray-600 dark:text-gray-400 font-medium mb-1.5 text-[13px]">Instructions</label>
+                        <textarea id="setting-tone" rows="2" class="w-full bg-gray-50 dark:bg-[#2f2f2f] border border-gray-200 dark:border-[#444] rounded-xl px-3 py-2 outline-none focus:border-gray-400 dark:focus:border-gray-500 transition-colors text-gray-900 dark:text-gray-100 resize-none">Short, straight to the point, and highly engaging with the best emojis 🚀✨</textarea>
+                    </div>
+                    <button onclick="saveSettings()" class="w-full bg-black dark:bg-white text-white dark:text-black py-2.5 rounded-xl font-medium hover:opacity-90 transition-opacity mt-2">Save</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Custom Quiz Modal -->
+        <div id="quiz-modal" onclick="if(event.target === this) closeQuizModal()" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center px-4 opacity-0 transition-opacity duration-200">
+            <div class="bg-white dark:bg-[#212121] rounded-2xl shadow-xl w-full max-w-sm overflow-hidden transform scale-95 transition-all duration-200 border border-gray-200 dark:border-[#333]" id="quiz-content">
+                <div class="border-b border-gray-100 dark:border-[#333] p-4 flex justify-between items-center">
+                    <span class="font-semibold text-gray-800 dark:text-gray-100 text-[15px]">Interactive Quiz Setup 🎯</span>
+                    <button onclick="closeQuizModal()" class="text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                </div>
+                <div class="p-5 space-y-4 text-sm">
+                    <div>
+                        <label class="block text-gray-600 dark:text-gray-400 font-medium mb-1.5 text-[13px]">Topic</label>
+                        <input type="text" id="quiz-topic" placeholder="e.g., Arrays, CPU Scheduling..." class="w-full bg-gray-50 dark:bg-[#2f2f2f] border border-gray-200 dark:border-[#444] rounded-xl px-3 py-2 outline-none focus:border-gray-400 dark:focus:border-gray-500 transition-colors text-gray-900 dark:text-gray-100">
+                        <p id="quiz-topic-hint" class="text-[11px] text-gray-500 mt-1">Suggested: C, DSA, C++, Java, DBMS...</p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-gray-600 dark:text-gray-400 font-medium mb-1.5 text-[13px]">Difficulty</label>
+                            <select id="quiz-difficulty" class="w-full bg-gray-50 dark:bg-[#2f2f2f] border border-gray-200 dark:border-[#444] rounded-xl px-3 py-2 outline-none focus:border-gray-400 dark:focus:border-gray-500 transition-colors text-gray-900 dark:text-gray-100">
+                                <option value="Easy">Easy</option>
+                                <option value="Medium" selected>Medium</option>
+                                <option value="Hard">Hard</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-gray-600 dark:text-gray-400 font-medium mb-1.5 text-[13px]">No. of Questions</label>
+                            <input type="number" id="quiz-count" min="1" max="10" value="3" class="w-full bg-gray-50 dark:bg-[#2f2f2f] border border-gray-200 dark:border-[#444] rounded-xl px-3 py-2 outline-none focus:border-gray-400 dark:focus:border-gray-500 transition-colors text-gray-900 dark:text-gray-100">
+                        </div>
+                    </div>
+                    <button onclick="startPersonalizedQuiz()" class="w-full bg-black dark:bg-white text-white dark:text-black py-2.5 rounded-xl font-medium hover:opacity-90 transition-opacity mt-2">Start Quiz</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- Theme Management ---
+        function toggleTheme() {
+            const html = document.documentElement;
+            html.classList.toggle('dark');
+            const isDark = html.classList.contains('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            updateThemeIcon(isDark);
+        }
+
+        function updateThemeIcon(isDark) {
+            document.getElementById('theme-icon').innerText = isDark ? '🌙' : '☀️';
+        }
+
+        function initTheme() {
+            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+                updateThemeIcon(true);
+            } else {
+                document.documentElement.classList.remove('dark');
+                updateThemeIcon(false);
+            }
+        }
+        initTheme();
+
+        // --- API Configuration ---
+        const apiKey = ""; 
+        const model = "gemini-2.5-flash-preview-09-2025";
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+
+        let currentPersona = {
+            name: "BCA Assistance",
+            domain: "B.R.A. Bihar University BCA Syllabus",
+            tone: "Short, straight to the point, and highly engaging with the best emojis."
+        };
+
+        const generalPrompts = [
+            "Explain Pointers in C",
+            "What is an Array?",
+            "OOPs concepts in C++",
+            "JVM, JRE, and JDK",
+            "SQL query to SELECT data",
+            "Difference between HTML, CSS, JS"
+        ];
+
+        function getSystemPrompt() {
+            return `
+You are an AI assistant named "${currentPersona.name}".
+B.R.A. BIHAR UNIVERSITY (BRABU) BCA SYLLABUS:
+- Sem 1: Math Foundation, Fundamentals, C Programming.
+- Sem 2: Discrete Math, Architecture, Data Structure (C), SAD.
+- Sem 3: Management, DBMS, OOP (C++), Numerical Methodology.
+- Sem 4: Java, Computer Graphics, OS & Linux, Software Engineering.
+- Sem 5: RDBMS (Oracle), AI (Python), Web Tech (HTML/CSS/JS), Networks.
+- Sem 6: Project & Seminar.
+
+CRITICAL RULES:
+1. SHORT & STRAIGHT TO THE POINT 🎯: Absolutely NO fluff or long paragraphs. Give the best explanation in just 2-4 lines. Get right to the answer!
+2. BEST EMOJIS ✨🔥: Use fun, highly relevant emojis in every single response to make it visually awesome and easy to read.
+3. DOMAIN 📚: Focus on ${currentPersona.domain}.
+4. TONE 🗣️: ${currentPersona.tone}.
+5. CODE 💻: Clean, minimal code with just 1 line of explanation.
+`;
+        }
+
+        let chatHistory = [];
+        const chatBox = document.getElementById('chat-box');
+        const inputField = document.getElementById('user-input');
+        const typingIndicator = document.getElementById('typing-indicator');
+        const errorMsg = document.getElementById('error-msg');
+        const sendBtn = document.getElementById('send-btn');
+        const recommendationContainer = document.getElementById('recommendation-container');
+        const dynamicPromptsBox = document.getElementById('dynamic-prompts');
+        let currentImage = null;
+
+        // Interactive Quiz Global State
+        let currentQuizData = null;
+        let currentQuizQuestionIndex = 0;
+        let currentQuizScore = 0;
+        let activeQuizContainerId = null;
+
+        // --- Core Functions ---
+
+        function loadRecommendations() {
+            dynamicPromptsBox.innerHTML = '';
+            
+            const tools = [
+                { icon: '🎯', text: 'Custom Quiz', action: 'openQuizModal()' },
+                { icon: '🎨', text: 'Draw Diagram', action: `prepareDrawCommand()` }
+            ];
+            
+            tools.forEach(tool => {
+                const btn = document.createElement('button');
+                btn.className = "flex items-center gap-1.5 text-[12px] bg-gray-50 dark:bg-[#2f2f2f] text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-[#444] px-3 py-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-[#3f3f3f] transition-colors whitespace-nowrap flex-shrink-0 font-medium";
+                btn.innerHTML = `<span>${tool.icon}</span> ${tool.text}`;
+                btn.setAttribute('onclick', tool.action);
+                dynamicPromptsBox.appendChild(btn);
+            });
+
+            generalPrompts.forEach(prompt => {
+                const btn = document.createElement('button');
+                btn.className = "text-[12px] bg-white dark:bg-[#212121] text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-[#444] px-3 py-1.5 rounded-lg hover:bg-gray-50 dark:hover:bg-[#2f2f2f] transition-colors whitespace-nowrap flex-shrink-0";
+                btn.innerText = prompt;
+                btn.onclick = () => sendQuickAction(prompt);
+                dynamicPromptsBox.appendChild(btn);
+            });
+            recommendationContainer.classList.remove('hidden');
+        }
+
+        window.prepareDrawCommand = function() {
+            inputField.value = '/draw ';
+            inputField.focus();
+        };
+
+        function formatText(text) {
+            if (typeof marked !== 'undefined') {
+                return `<div class="md-content">${marked.parse(text)}</div>`;
+            }
+            let formatted = text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+            formatted = formatted.replace(/\n/g, '<br>');
+            return `<div class="md-content">${formatted}</div>`;
+        }
+
+        function appendMessage(sender, text) {
+            const wrapper = document.createElement('div');
+            wrapper.className = `flex w-full mb-6 animate-fade-in-up ${sender === 'user' ? 'justify-end' : 'justify-start gap-3'}`;
+            
+            if (sender === 'user') {
+                wrapper.innerHTML = `
+                    <div class="bg-gray-100 dark:bg-[#2f2f2f] text-gray-800 dark:text-gray-100 px-4 py-2.5 rounded-[20px] max-w-[85%] text-[15px] leading-relaxed">
+                        ${formatText(text)}
+                    </div>`;
+            } else {
+                const innerWrapper = document.createElement('div');
+                innerWrapper.className = `flex flex-col max-w-[85%] w-full`;
+
+                const textDiv = document.createElement('div');
+                textDiv.className = 'text-gray-800 dark:text-gray-100 text-[15px] leading-relaxed pt-1';
+                textDiv.innerHTML = formatText(text);
+                innerWrapper.appendChild(textDiv);
+
+                const actionDiv = document.createElement('div');
+                actionDiv.className = 'flex gap-2 mt-2';
+                const plainText = text.replace(/<[^>]*>?/gm, ''); 
+                
+                const listenBtn = document.createElement('button');
+                listenBtn.className = 'text-[11px] text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 font-medium transition-colors flex items-center gap-1';
+                listenBtn.innerHTML = '🔊 Listen';
+                listenBtn.onclick = () => speakText(plainText);
+
+                const copyBtn = document.createElement('button');
+                copyBtn.className = 'text-[11px] text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 font-medium transition-colors flex items-center gap-1';
+                copyBtn.innerHTML = '📋 Copy';
+                copyBtn.onclick = () => copyText(copyBtn, plainText);
+
+                actionDiv.appendChild(listenBtn);
+                actionDiv.appendChild(copyBtn);
+                innerWrapper.appendChild(actionDiv);
+
+                wrapper.innerHTML = `<div class="w-8 h-8 rounded-full bg-green-600 flex-shrink-0 flex items-center justify-center text-white text-sm">🤖</div>`;
+                wrapper.appendChild(innerWrapper);
+            }
+            
+            chatBox.appendChild(wrapper);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function toggleLoading(isLoading) {
+            if (isLoading) {
+                typingIndicator.classList.remove('hidden');
+                sendBtn.disabled = true;
+                inputField.disabled = true;
+                inputField.placeholder = "Thinking... 🤔💭";
+            } else {
+                typingIndicator.classList.add('hidden');
+                sendBtn.disabled = false;
+                inputField.disabled = false;
+                inputField.placeholder = "How can I help you? ✨✍️";
+                setTimeout(() => inputField.focus(), 10);
+            }
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function showError(msg) {
+            errorMsg.innerText = msg;
+            errorMsg.classList.remove('hidden');
+            setTimeout(() => errorMsg.classList.add('hidden'), 4000);
+        }
+
+        function clearChat() {
+            chatHistory = [];
+            
+            inputField.value = "";
+
+            chatBox.innerHTML = `
+                <div id="welcome-container" class="flex flex-col gap-4 animate-fade-in-up">
+                    <div class="flex w-full gap-3">
+                        <div class="w-8 h-8 rounded-full bg-green-600 flex-shrink-0 flex items-center justify-center text-white text-sm">🤖</div>
+                        <div class="flex flex-col max-w-[85%] text-[15px] leading-relaxed text-gray-800 dark:text-gray-100 pt-1">
+                            <p>Hello! I am BCA Assistance, your AI study buddy.</p>
+                            <p class="mt-2">How can I help you study today? You can ask me to explain a concept, give you an example, or even test you with a quick quiz!</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            loadRecommendations();
+        }
+
+        // Initialize Chat and Recommendations
+        window.addEventListener('DOMContentLoaded', () => {
+            loadRecommendations();
+        });
+
+        // --- Modals ---
+        function openSettings() {
+            const modal = document.getElementById('settings-modal');
+            const content = document.getElementById('settings-content');
+            modal.classList.remove('hidden');
+            void modal.offsetWidth; 
+            modal.classList.remove('opacity-0');
+            content.classList.remove('scale-95');
+        }
+
+        function closeSettings() {
+            const modal = document.getElementById('settings-modal');
+            const content = document.getElementById('settings-content');
+            modal.classList.add('opacity-0');
+            content.classList.add('scale-95');
+            setTimeout(() => { modal.classList.add('hidden'); }, 200);
+        }
+
+        function saveSettings() {
+            currentPersona.name = document.getElementById('setting-name').value || "BCA Assistance";
+            currentPersona.domain = document.getElementById('setting-domain').value || "BCA Topics";
+            currentPersona.tone = document.getElementById('setting-tone').value;
+            
+            document.getElementById('bot-name').innerText = currentPersona.name;
+            closeSettings();
+            clearChat();
+        }
+
+        function openQuizModal() {
+            const modal = document.getElementById('quiz-modal');
+            const content = document.getElementById('quiz-content');
+            modal.classList.remove('hidden');
+            void modal.offsetWidth;
+            modal.classList.remove('opacity-0');
+            content.classList.remove('scale-95');
+        }
+
+        function closeQuizModal() {
+            const modal = document.getElementById('quiz-modal');
+            const content = document.getElementById('quiz-content');
+            modal.classList.add('opacity-0');
+            content.classList.add('scale-95');
+            setTimeout(() => { modal.classList.add('hidden'); }, 200);
+        }
+
+        function startPersonalizedQuiz() {
+            const topic = document.getElementById('quiz-topic').value || `BCA Topics`;
+            const diff = document.getElementById('quiz-difficulty').value;
+            const count = document.getElementById('quiz-count').value || 3;
+            
+            closeQuizModal();
+            
+            // Send user message
+            appendMessage('user', `Start a ${count}-question ${diff} interactive quiz on ${topic} 🎯`);
+            
+            // Trigger hidden API fetch for structured JSON
+            generateInteractiveQuiz(topic, diff, count);
+        }
+
+        // --- Interactive Quiz Logic (Click Mode) ---
+        async function generateInteractiveQuiz(topic, diff, count) {
+            toggleLoading(true);
+            
+            const strictPrompt = `Generate a ${diff} difficulty multiple-choice quiz about "${topic}" with exactly ${count} questions.
+            You MUST respond ONLY with a raw JSON object. Do not use markdown backticks like \`\`\`json. 
+            Format exactly like this:
+            {
+              "title": "Quiz Title",
+              "questions": [
+                {
+                  "question": "Question text?",
+                  "options": ["A", "B", "C", "D"],
+                  "correctIndex": 0,
+                  "explanation": "Why this is the answer."
+                }
+              ]
+            }`;
+
+            try {
+                const payload = {
+                    contents: [{ role: "user", parts: [{ text: strictPrompt }] }]
+                };
+
+                const response = await fetchWithRetry(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                let responseText = response.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (!responseText) throw new Error("No response");
+
+                // Clean potential markdown from LLM
+                responseText = responseText.replace(/```json/gi, '').replace(/```/g, '').trim();
+                const quizData = JSON.parse(responseText);
+
+                renderQuizUI(quizData);
+            } catch (error) {
+                console.error(error);
+                appendMessage('bot', "❌ Sorry, I had trouble generating the quiz in the correct format. Please try again.");
+            }
+            toggleLoading(false);
+        }
+
+        function renderQuizUI(quizData) {
+            currentQuizData = quizData;
+            currentQuizQuestionIndex = 0;
+            currentQuizScore = 0;
+            activeQuizContainerId = 'quiz-container-' + Date.now();
+
+            const wrapper = document.createElement('div');
+            wrapper.className = `flex w-full mb-6 animate-fade-in-up justify-start gap-3`;
+            
+            wrapper.innerHTML = `
+                <div class="w-8 h-8 rounded-full bg-indigo-600 flex-shrink-0 flex items-center justify-center text-white text-sm">🎯</div>
+                <div class="flex flex-col w-full max-w-[90%]">
+                    <div id="${activeQuizContainerId}" class="bg-white dark:bg-[#2a2a2a] border border-gray-200 dark:border-[#444] rounded-2xl p-5 shadow-sm transition-colors w-full">
+                        <!-- Questions injected here -->
+                    </div>
+                </div>
+            `;
+            chatBox.appendChild(wrapper);
+            renderCurrentQuizQuestion();
+        }
+
+        function renderCurrentQuizQuestion() {
+            const container = document.getElementById(activeQuizContainerId);
+            if (!container || !currentQuizData) return;
+
+            // Quiz finished state
+            if (currentQuizQuestionIndex >= currentQuizData.questions.length) {
+                const percentage = (currentQuizScore / currentQuizData.questions.length) * 100;
+                let emoji = percentage === 100 ? '🏆' : percentage >= 50 ? '👍' : '📚';
+                
+                container.innerHTML = `
+                    <h3 class="text-lg font-bold mb-2 text-gray-900 dark:text-gray-100">Quiz Completed! ${emoji}</h3>
+                    <p class="text-[15px] mb-4 text-gray-700 dark:text-gray-300">You scored <b>${currentQuizScore}</b> out of <b>${currentQuizData.questions.length}</b>.</p>
+                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 mb-2">
+                        <div class="bg-indigo-600 h-2.5 rounded-full transition-all duration-1000" style="width: ${percentage}%"></div>
+                    </div>
+                `;
+                chatBox.scrollTop = chatBox.scrollHeight;
+                return;
+            }
+
+            // Current Question state
+            const q = currentQuizData.questions[currentQuizQuestionIndex];
+            let optionsHtml = '';
+            
+            q.options.forEach((opt, idx) => {
+                optionsHtml += `<button onclick="handleQuizAnswer(this, ${idx})" class="quiz-option-btn w-full text-left p-3 mb-2.5 border border-gray-200 dark:border-[#444] rounded-xl hover:bg-gray-50 dark:hover:bg-[#3f3f3f] transition-colors text-[14px] text-gray-800 dark:text-gray-200">${opt}</button>`;
+            });
+
+            container.innerHTML = `
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-[11px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">${currentQuizData.title}</span>
+                    <span class="text-[11px] font-bold text-gray-500 dark:text-gray-400">Question ${currentQuizQuestionIndex + 1} / ${currentQuizData.questions.length}</span>
+                </div>
+                <p class="text-[15px] font-medium mb-5 text-gray-900 dark:text-gray-100">${q.question}</p>
+                <div class="flex flex-col">
+                    ${optionsHtml}
+                </div>
+                <div id="quiz-feedback-${currentQuizQuestionIndex}" class="hidden mt-4 p-3 rounded-xl text-[14px] leading-relaxed"></div>
+                <button id="quiz-next-btn-${currentQuizQuestionIndex}" onclick="nextQuizQuestion()" class="hidden mt-4 w-full px-4 py-2.5 bg-black dark:bg-white text-white dark:text-black rounded-xl text-[14px] font-medium hover:opacity-90 transition-opacity">Next Question</button>
+            `;
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        window.handleQuizAnswer = function(btn, selectedIndex) {
+            const q = currentQuizData.questions[currentQuizQuestionIndex];
+            const container = document.getElementById(activeQuizContainerId);
+            const allBtns = container.querySelectorAll('.quiz-option-btn');
+
+            // Disable buttons to prevent multiple clicks
+            allBtns.forEach(b => {
+                b.disabled = true;
+                b.classList.add('cursor-not-allowed', 'opacity-80');
+                b.classList.remove('hover:bg-gray-50', 'dark:hover:bg-[#3f3f3f]');
+            });
+
+            const feedbackDiv = document.getElementById(`quiz-feedback-${currentQuizQuestionIndex}`);
+            const nextBtn = document.getElementById(`quiz-next-btn-${currentQuizQuestionIndex}`);
+
+            // Highlight Logic
+            if (selectedIndex === q.correctIndex) {
+                btn.classList.add('bg-green-50', 'dark:bg-green-900/30', 'border-green-500', 'text-green-800', 'dark:text-green-300');
+                currentQuizScore++;
+                feedbackDiv.innerHTML = `<b class="text-green-600 dark:text-green-400">✅ Correct!</b> <br><span class="text-gray-700 dark:text-gray-300 mt-1 block">${q.explanation}</span>`;
+                feedbackDiv.classList.add('bg-green-50', 'dark:bg-green-900/10', 'border', 'border-green-200', 'dark:border-green-800/50');
+            } else {
+                btn.classList.add('bg-red-50', 'dark:bg-red-900/30', 'border-red-500', 'text-red-800', 'dark:text-red-300');
+                allBtns[q.correctIndex].classList.add('bg-green-50', 'dark:bg-green-900/30', 'border-green-500', 'text-green-800', 'dark:text-green-300');
+                
+                feedbackDiv.innerHTML = `<b class="text-red-600 dark:text-red-400">❌ Incorrect.</b> <br><span class="text-gray-700 dark:text-gray-300 mt-1 block">${q.explanation}</span>`;
+                feedbackDiv.classList.add('bg-red-50', 'dark:bg-red-900/10', 'border', 'border-red-200', 'dark:border-red-800/50');
+            }
+
+            // If last question, change next button text
+            if (currentQuizQuestionIndex === currentQuizData.questions.length - 1) {
+                nextBtn.innerText = "Finish Quiz & View Score";
+            }
+
+            feedbackDiv.classList.remove('hidden');
+            nextBtn.classList.remove('hidden');
+            
+            // Smooth scroll to bottom to show feedback
+            setTimeout(() => { chatBox.scrollTop = chatBox.scrollHeight; }, 50);
+        }
+
+        window.nextQuizQuestion = function() {
+            currentQuizQuestionIndex++;
+            renderCurrentQuizQuestion();
+        }
+
+
+        // --- API ---
+        async function fetchWithRetry(url, options, maxRetries = 5) {
+            const delays = [1000, 2000, 4000, 8000, 16000];
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (!response.ok) throw new Error(`API Error: ${response.status}`);
+                    return await response.json();
+                } catch (error) {
+                    if (i === maxRetries - 1) throw error;
+                    await new Promise(r => setTimeout(r, delays[i]));
+                }
+            }
+        }
+
+        async function generateImageResponse(promptText) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`;
+            const payload = { instances: { prompt: promptText }, parameters: { sampleCount: 1 } };
+            const result = await fetchWithRetry(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            if (result.predictions && result.predictions[0]) {
+                return `data:image/png;base64,${result.predictions[0].bytesBase64Encoded}`;
+            }
+            throw new Error("Image failed");
+        }
+
+        async function generateResponse(userMessage) {
+            let userParts = [{ text: userMessage }];
+            if (currentImage) {
+                userParts.push({ inlineData: { mimeType: currentImage.mimeType, data: currentImage.data } });
+            }
+
+            chatHistory.push({ role: "user", parts: userParts });
+
+            const payload = {
+                contents: chatHistory,
+                systemInstruction: { parts: [{ text: getSystemPrompt() }] }
+            };
+
+            try {
+                const result = await fetchWithRetry(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                const botReply = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                
+                if (botReply) {
+                    chatHistory.push({ role: "model", parts: [{ text: botReply }] });
+                    appendMessage('bot', botReply);
+                } else { throw new Error("No response."); }
+            } catch (error) {
+                showError("Connection error. Try again.");
+                chatHistory.pop(); 
+            }
+        }
+
+        // --- Event Handlers ---
+        function handleImageUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                currentImage = {
+                    mimeType: file.type,
+                    data: event.target.result.split(',')[1],
+                    preview: event.target.result
+                };
+                document.getElementById('image-preview-container').classList.remove('hidden');
+                document.getElementById('image-preview').src = currentImage.preview;
+                inputField.focus();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removeImage() {
+            currentImage = null;
+            document.getElementById('image-preview-container').classList.add('hidden');
+            document.getElementById('image-upload').value = '';
+        }
+
+        async function handleSendClick() {
+            const text = inputField.value.trim();
+            if (!text && !currentImage) return;
+
+            inputField.value = "";
+            inputField.style.height = ''; 
+            
+            let displayMessage = text;
+            if (currentImage) {
+                displayMessage += (text ? '<br>' : '') + `<img src="${currentImage.preview}" class="h-32 w-auto rounded-xl mt-2 border border-gray-200 dark:border-gray-700">`;
+            }
+            appendMessage('user', displayMessage);
+            
+            toggleLoading(true);
+            
+            if (text.toLowerCase().startsWith('/draw ')) {
+                const prompt = text.substring(6);
+                try {
+                    const imageUrl = await generateImageResponse(prompt);
+                    appendMessage('bot', `Here is your image:<br><img src="${imageUrl}" class="w-full max-w-sm rounded-xl mt-2 border border-gray-200 dark:border-[#333]">`);
+                } catch(e) { showError('Image generation failed.'); }
+            } else {
+                await generateResponse(text || "Explain this image.");
+            }
+            
+            if(currentImage) removeImage();
+            toggleLoading(false);
+        }
+
+        function sendQuickAction(actionText) {
+            if (sendBtn.disabled) return; 
+            inputField.value = actionText;
+            handleSendClick();
+        }
+
+        // --- Utilities ---
+        function copyText(btn, text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                const orig = btn.innerHTML;
+                btn.innerHTML = '✅ Copied';
+                setTimeout(() => btn.innerHTML = orig, 2000);
+            } catch (err) {}
+            document.body.removeChild(textarea);
+        }
+
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); 
+                const utterance = new SpeechSynthesisUtterance(text.replace(/[*#`_~>]/g, ''));
+                utterance.lang = 'en-IN'; 
+                window.speechSynthesis.speak(utterance);
+            } else { showError("TTS not supported."); }
+        }
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let recognition;
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.lang = 'en-IN';
+            recognition.onstart = () => { document.getElementById('mic-icon').classList.add('text-red-500', 'animate-pulse'); };
+            recognition.onresult = (e) => { inputField.value = e.results[0][0].transcript; };
+            recognition.onend = () => { document.getElementById('mic-icon').classList.remove('text-red-500', 'animate-pulse'); };
+            recognition.onerror = () => { showError("Voice input failed."); };
+        }
+
+        function toggleMic() {
+            if (recognition) { try { recognition.start(); } catch(e) { recognition.stop(); } } 
+            else { showError("Voice input not supported."); }
+        }
+    </script>
+</body>
+</html>
